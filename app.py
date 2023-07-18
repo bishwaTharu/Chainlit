@@ -10,7 +10,6 @@ from langchain.memory import ConversationBufferMemory
 from langchain.agents import initialize_agent
 from langchain.agents import AgentType
 
-
 # authentication
 load_dotenv(find_dotenv())
 api_token = os.getenv("HUGGINGFACEHUB_API_TOKEN")
@@ -26,10 +25,7 @@ llm = HuggingFaceHub(
     callbacks=[handler],
 )
 
-
 search = DuckDuckGoSearchRun()
-
-
 tools = [
     Tool(
         name="DuckDuckGo Search",
@@ -41,7 +37,7 @@ tools = [
 
 @cl.langchain_factory(use_async=False)
 def agent():
-    memory = ConversationBufferMemory(memory_key="chat_history",return_messages=True)
+    memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
     agent_chain = initialize_agent(
         tools,
         llm,
@@ -51,15 +47,11 @@ def agent():
         max_execution_time=1,
         early_stopping_method="generate",
         handle_parsing_errors="Check your output and make sure it conforms!",
-
     )
-
-    # Set verbose to be true
     return agent_chain
 
 
 @cl.langchain_run
 async def run(agent, input_str):
-    # Since the agent is sync, we need to make it async
     res = await cl.make_async(agent.run)(input_str)
     await cl.Message(content=res).send()
